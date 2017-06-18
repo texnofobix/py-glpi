@@ -13,8 +13,11 @@ the [GLPI Rest API](https://github.com/glpi-project/glpi/blob/9.1/bugfixes/apire
 
 To usage it, you should have username, password and API-Token from your GLPI server.
 
+To create an API token: Setup > General > API :
+* `Enable Rest API` : `Yes`
+
 See also:
-* [GLPI Rest API](https://github.com/glpi-project/glpi/blob/9.1/bugfixes/apirest.md#list-searchoptions)
+* [GLPI Rest API](https://github.com/glpi-project/glpi/blob/9.1/bugfixes/apirest.md#glpi-rest-api--documentation)
 
 
 ## Install
