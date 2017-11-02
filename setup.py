@@ -28,5 +28,6 @@ setup(
     keywords=['GLPI', 'SDK'],
     install_requires=[
         'requests',
+        'future',
     ]
 )

@@ -16,6 +16,8 @@
 # https://github.com/glpi-project/glpi/blob/9.1/bugfixes/apirest.md
 
 from __future__ import print_function
+from future.utils import viewitems
+import re
 import os
 import sys
 import json as json_import
@@ -611,11 +613,19 @@ class GLPI(object):
         RETURNS:
         GLPIs APIREST JSON formated with result of search in key 'data'.
         """
-        field_map = {
-            "id": 2,
-            "name": 6,
-            "body": 6,
-        }
+
+        # Receive the possible field ids for type item_name
+        # -> to avoid wrong lookups, use uid of fields, but strip item type:
+        #    example: {"1": {"uid": "Computer.name"}} gets {"name": 1}
+        field_map = {}
+        opts = self.search_options(item_name)
+        for field_id, field_opts in viewitems(opts):
+            if field_id.isdigit() and 'uid' in field_opts:
+                # support case-insensitive strip from item_name!
+                field_name = re.sub('^'+item_name+'.', '', field_opts['uid'],
+                                    flags=re.IGNORECASE)
+                field_map[field_name] = int(field_id)
+
         uri_query = "%s?" % item_name
 
         for idx, c in enumerate(criteria['criteria']):
@@ -651,6 +661,7 @@ class GLPI(object):
                 self.init_api()
 
             self.update_uri('search')
+            # TODO: is this call correct? shouldn't this be search_engine()?
             return self.api_rest.search_options(uri_query)
 
         except GlpiException as e:
