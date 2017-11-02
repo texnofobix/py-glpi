@@ -634,7 +634,23 @@ class GLPI(object):
                 uri = ""
             else:
                 uri = "&"
-            uri = uri + "criteria[%d][field]=%d" % (idx, field_map[c['field']])
+            if 'field' in c and c['field'] is not None:
+                field_name = ""
+                # if int given, use it directly
+                if isinstance(c['field'], int) or c['field'].isdigit():
+                    field_name = int(c['field'])
+                # if name given, try to map to an int
+                elif c['field'] in field_map:
+                    field_name = field_map[c['field']]
+                else:
+                    raise GlpiInvalidArgument(
+                        'Cannot map field name "'+c['field']+'" to a field id '+
+                        'for '+str(idx+1)+'. criterion '+str(c))
+                uri = uri + "criteria[%d][field]=%d" % (idx, field_name)
+            else:
+                raise GlpiInvalidArgument(
+                    'Missing "field" parameter for '+str(idx+1)+'. criterion '+
+                    str(c))
 
             # build value argument
             if 'value' not in c or c['value'] is None:
