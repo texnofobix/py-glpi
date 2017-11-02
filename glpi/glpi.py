@@ -619,16 +619,20 @@ class GLPI(object):
         uri_query = "%s?" % item_name
 
         for idx, c in enumerate(criteria['criteria']):
+            # build field argument
             if idx == 0:
                 uri = ""
             else:
                 uri = "&"
-
             uri = uri + "criteria[%d][field]=%d" % (idx, field_map[c['field']])
-            if c['value'] is None:
+
+            # build value argument
+            if 'value' not in c or c['value'] is None:
                 uri = uri + "&criteria[%d][value]=" % (idx)
             else:
                 uri = uri + "&criteria[%d][value]=%s" % (idx, c['value'])
+
+            # build searchtype argument
             uri = uri + "&criteria[%d][searchtype]=%s" % (idx, c['searchtype'])
 
             # link is optional for 1st criterion according to docs...
