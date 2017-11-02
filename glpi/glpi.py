@@ -643,7 +643,11 @@ class GLPI(object):
                 uri = uri + "&criteria[%d][value]=%s" % (idx, c['value'])
 
             # build searchtype argument
-            uri = uri + "&criteria[%d][searchtype]=%s" % (idx, c['searchtype'])
+            # -> optional! defaults to "contains" on the server if empty
+            if 'searchtype' in c and c['searchtype'] is not None:
+                uri = uri + "&criteria[%d][searchtype]=%s" % (idx, c['searchtype'])
+            else:
+                uri = uri + "&criteria[%d][searchtype]=" % (idx)
 
             # link is optional for 1st criterion according to docs...
             # -> error if not present but more than one criterion
