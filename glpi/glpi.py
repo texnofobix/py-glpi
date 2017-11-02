@@ -630,7 +630,16 @@ class GLPI(object):
             else:
                 uri = uri + "criteria[%d][value]=%s&" % (idx, c['value'])
             uri = uri + "criteria[%d][searchtype]=%s&" % (idx, c['searchtype'])
-            uri = uri + "criteria[%d][link]=%s" % (idx, c['link'])
+
+            # link is optional for 1st criterion according to docs...
+            # -> error if not present but more than one criterion
+            if 'link' not in c and idx > 0:
+                raise GlpiInvalidArgument(
+                    'Missing link type for '+str(idx+1)+'. criterion '+str(c))
+            elif 'link' in c:
+                uri = uri + "criteria[%d][link]=%s" % (idx, c['link'])
+
+            # add this criterion to the query
             uri_query = uri_query + uri
 
         try:
