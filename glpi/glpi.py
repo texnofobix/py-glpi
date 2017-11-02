@@ -624,12 +624,12 @@ class GLPI(object):
             else:
                 uri = "&"
 
-            uri = uri + "criteria[%d][field]=%d&" % (idx, field_map[c['field']])
+            uri = uri + "criteria[%d][field]=%d" % (idx, field_map[c['field']])
             if c['value'] is None:
-                uri = uri + "criteria[%d][value]=&" % (idx)
+                uri = uri + "&criteria[%d][value]=" % (idx)
             else:
-                uri = uri + "criteria[%d][value]=%s&" % (idx, c['value'])
-            uri = uri + "criteria[%d][searchtype]=%s&" % (idx, c['searchtype'])
+                uri = uri + "&criteria[%d][value]=%s" % (idx, c['value'])
+            uri = uri + "&criteria[%d][searchtype]=%s" % (idx, c['searchtype'])
 
             # link is optional for 1st criterion according to docs...
             # -> error if not present but more than one criterion
@@ -637,7 +637,7 @@ class GLPI(object):
                 raise GlpiInvalidArgument(
                     'Missing link type for '+str(idx+1)+'. criterion '+str(c))
             elif 'link' in c:
-                uri = uri + "criteria[%d][link]=%s" % (idx, c['link'])
+                uri = uri + "&criteria[%d][link]=%s" % (idx, c['link'])
 
             # add this criterion to the query
             uri_query = uri_query + uri
