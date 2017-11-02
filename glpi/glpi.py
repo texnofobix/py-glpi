@@ -616,26 +616,22 @@ class GLPI(object):
             "name": 6,
             "body": 6,
         }
-        s_index = 0
         uri_query = "%s?" % item_name
 
-        for c in criteria['criteria']:
-            if s_index == 0:
+        for idx, c in enumerate(criteria['criteria']):
+            if idx == 0:
                 uri = ""
             else:
                 uri = "&"
 
-            uri = uri + "criteria[%d][field]=%d&" % (s_index,
-                                                     field_map[c['field']])
+            uri = uri + "criteria[%d][field]=%d&" % (idx, field_map[c['field']])
             if c['value'] is None:
-                uri = uri + "criteria[%d][value]=&" % (s_index)
+                uri = uri + "criteria[%d][value]=&" % (idx)
             else:
-                uri = uri + "criteria[%d][value]=%s&" % (s_index, c['value'])
-            uri = uri + "criteria[%d][searchtype]=%s&" % (s_index,
-                                                          c['searchtype'])
-            uri = uri + "criteria[%d][link]=%s" % (s_index, c['link'])
+                uri = uri + "criteria[%d][value]=%s&" % (idx, c['value'])
+            uri = uri + "criteria[%d][searchtype]=%s&" % (idx, c['searchtype'])
+            uri = uri + "criteria[%d][link]=%s" % (idx, c['link'])
             uri_query = uri_query + uri
-            s_index += 1
 
         try:
             if not self.api_has_session():
