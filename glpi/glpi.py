@@ -16,6 +16,8 @@
 # https://github.com/glpi-project/glpi/blob/9.1/bugfixes/apirest.md
 
 from __future__ import print_function
+from future.utils import viewitems
+import re
 import os
 import sys
 import json as json_import
@@ -611,37 +613,75 @@ class GLPI(object):
         RETURNS:
         GLPIs APIREST JSON formated with result of search in key 'data'.
         """
-        field_map = {
-            "id": 2,
-            "name": 6,
-            "body": 6,
-        }
-        s_index = 0
+
+        # Receive the possible field ids for type item_name
+        # -> to avoid wrong lookups, use uid of fields, but strip item type:
+        #    example: {"1": {"uid": "Computer.name"}} gets {"name": 1}
+        field_map = {}
+        opts = self.search_options(item_name)
+        for field_id, field_opts in viewitems(opts):
+            if field_id.isdigit() and 'uid' in field_opts:
+                # support case-insensitive strip from item_name!
+                field_name = re.sub('^'+item_name+'.', '', field_opts['uid'],
+                                    flags=re.IGNORECASE)
+                field_map[field_name] = int(field_id)
+
         uri_query = "%s?" % item_name
 
-        for c in criteria['criteria']:
-            if s_index == 0:
+        for idx, c in enumerate(criteria['criteria']):
+            # build field argument
+            if idx == 0:
                 uri = ""
             else:
                 uri = "&"
-
-            uri = uri + "criteria[%d][field]=%d&" % (s_index,
-                                                     field_map[c['field']])
-            if c['value'] is None:
-                uri = uri + "criteria[%d][value]=&" % (s_index)
+            if 'field' in c and c['field'] is not None:
+                field_name = ""
+                # if int given, use it directly
+                if isinstance(c['field'], int) or c['field'].isdigit():
+                    field_name = int(c['field'])
+                # if name given, try to map to an int
+                elif c['field'] in field_map:
+                    field_name = field_map[c['field']]
+                else:
+                    raise GlpiInvalidArgument(
+                        'Cannot map field name "'+c['field']+'" to a field id '+
+                        'for '+str(idx+1)+'. criterion '+str(c))
+                uri = uri + "criteria[%d][field]=%d" % (idx, field_name)
             else:
-                uri = uri + "criteria[%d][value]=%s&" % (s_index, c['value'])
-            uri = uri + "criteria[%d][searchtype]=%s&" % (s_index,
-                                                          c['searchtype'])
-            uri = uri + "criteria[%d][link]=%s" % (s_index, c['link'])
+                raise GlpiInvalidArgument(
+                    'Missing "field" parameter for '+str(idx+1)+'. criterion '+
+                    str(c))
+
+            # build value argument
+            if 'value' not in c or c['value'] is None:
+                uri = uri + "&criteria[%d][value]=" % (idx)
+            else:
+                uri = uri + "&criteria[%d][value]=%s" % (idx, c['value'])
+
+            # build searchtype argument
+            # -> optional! defaults to "contains" on the server if empty
+            if 'searchtype' in c and c['searchtype'] is not None:
+                uri = uri + "&criteria[%d][searchtype]=%s" % (idx, c['searchtype'])
+            else:
+                uri = uri + "&criteria[%d][searchtype]=" % (idx)
+
+            # link is optional for 1st criterion according to docs...
+            # -> error if not present but more than one criterion
+            if 'link' not in c and idx > 0:
+                raise GlpiInvalidArgument(
+                    'Missing link type for '+str(idx+1)+'. criterion '+str(c))
+            elif 'link' in c:
+                uri = uri + "&criteria[%d][link]=%s" % (idx, c['link'])
+
+            # add this criterion to the query
             uri_query = uri_query + uri
-            s_index += 1
 
         try:
             if not self.api_has_session():
                 self.init_api()
 
             self.update_uri('search')
+            # TODO: is this call correct? shouldn't this be search_engine()?
             return self.api_rest.search_options(uri_query)
 
         except GlpiException as e:

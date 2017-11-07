@@ -139,6 +139,55 @@ The Item value must be valid, otherwise you will get the following error.
                     sort_keys=True)
   ```
 
+### Search with GLPI search engine
+
+GLPI has a powerfull search engine builtin, which is exposed via the API.
+See the documentation at your GLPI instance via `apirest.php#search-items`.
+
+You can use it as follows:
+  ```python
+  print "Search 'Computers': "
+  criteria = { "criteria": [
+                {
+                  # "link": "AND", # this is optional for the first criterion
+                  "searchtype": None, # default to "contains"
+                  "field": "name",
+                  "value": "TEST"
+                },
+                {
+                  "link": "AND",
+                  #"searchtype": "bb", # default to "contains"
+                  "field": "otherserial",
+                  "value": "xxx"
+                }
+             ]}
+  print json.dumps(glpi.search_engine('computer', criteria),
+                    indent=4,
+                    separators=(',', ': '),
+                    sort_keys=True)
+  ```
+
+**Usage:**
+* `field` parameter:
+  * You can use field names instead of their integer IDs (see output from
+    `/listSearchOptions`)
+    * These names are taken from their `uid`, but the item type is stripped.
+    * If you need a special field from a plugin, just find out the corresponding
+      `uid` and strip the item type.
+    * Example: `{"1": {"uid": "Computer.name"}}` gets `{"name": 1}` for type
+      *Computer*
+  * If you provide an integer or a number as string, it won't be touched
+    before use.
+  * If you provide an unmappable field name, an exception is raised.
+* `searchtype` is entirely optional, accepts garbage and `None`.
+* `link` is only enforced on criterions that are not the first.
+* `value` is entirely optional like `searchtype`.
+
+**Limitations:**
+* You cannot use other search parameters other than `criteria` right now.
+* You cannot use the `metacriteria` parameter, which makes linked searches
+  unavailable.
+
 ### Full example
 
 > TODO: create an full example with various Items available in GLPI Rest API.
