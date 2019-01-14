@@ -375,6 +375,7 @@ class GlpiService(object):
 
         if isinstance(item_id, (int, str)):
             uri = '%s/%s' % (self.uri, str(item_id))
+            print(uri)
             response = self.request('GET', uri)
             return response.json()
         else:
@@ -569,13 +570,16 @@ class GLPI(object):
         except GlpiException as e:
             return {'{}'.format(e)}
 
-    def get(self, item_name, item_id=None):
+    def get(self, item_name, item_id=None, sub_item=None):
         """ Get item_name and/with resource by ID """
         try:
             if not self.api_has_session():
                 self.init_api()
 
             self.update_uri(item_name)
+
+            if sub_item is not None and item_id is not None:
+                return self.api_rest.get("%d/%s" % (item_id, sub_item))
 
             if item_id is None:
                 return self.api_rest.get_path(item_name)
@@ -770,8 +774,6 @@ data = {
 			"content": "Testando UPDATE REST API",
 			"id": 18
 		}
-print(json.dumps(x.update('ticket', data),
-                    indent=4,
-                    separators=(',', ': '),
-                    sort_keys=True))
+print(json.dumps(x.get('ticket', 1, "log"), indent=4, separators=(',', ': '), sort_keys=True))
 x.kill()
+

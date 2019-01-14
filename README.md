@@ -163,10 +163,24 @@ The Item value must be valid, otherwise you will get the following error.
                     sort_keys=True)
   ```
 
+### Get ticket by ID
+
+  ```python
+  print "Getting Ticket with ID 1: "
+  print json.dumps(glpi.get('ticket', 1),
+                    indent=4,
+                    separators=(',', ': '),
+                    sort_keys=True)
+  ```
+
 ### Get sub items
 
   ```python
   print "Getting a collection of rows of the sub_itemtype for the identified item: "
+  print json.dumps(glpi.get('ticket', 1, 'log'),
+                    indent=4,
+                    separators=(',', ': '),
+                    sort_keys=True)
   ```
 
 ### Get multiple items
@@ -174,6 +188,17 @@ The Item value must be valid, otherwise you will get the following error.
   ```python
   print "Getting different itemtypes simultaneously: "
   ```
+
+### Location
+
+  ```python
+  print "Getting 'Locations': "
+  print json.dumps(glpi.get('location'),
+                    indent=4,
+                    separators=(',', ': '),
+                    sort_keys=True)
+  ```
+
 
 ### Create an Ticket
 
@@ -229,32 +254,16 @@ The Item value must be valid, otherwise you will get the following error.
                     sort_keys=True)
   ```
 
-### Get ticket by ID
-
-  ```python
-  print "Getting Ticket with ID 1: "
-  print json.dumps(glpi.get('ticket', 1),
-                    indent=4,
-                    separators=(',', ': '),
-                    sort_keys=True)
-  ```
-
-### Location
-
-  ```python
-  print "Getting 'Locations': "
-  print json.dumps(glpi.get('location'),
-                    indent=4,
-                    separators=(',', ': '),
-                    sort_keys=True)
-  ```
-
 ### List searchOptions
 
   ```python
   print "Getting a list of search options for the item type provided: "
+  print json.dumps(glpi.search_options('ticket'),
+                    indent=4,
+                    separators=(',', ': '),
+                    sort_keys=True)
   ```
-  
+
 ### Search with GLPI search engine
 
 GLPI has a powerfull search engine builtin, which is exposed via the API.
