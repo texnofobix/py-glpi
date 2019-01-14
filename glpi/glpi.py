@@ -760,9 +760,18 @@ class GLPI(object):
 
 
 from pprint import pprint
+import json
 
 x = GLPI("https://glpidemo.cloud.trulymanager.com/apirest.php", 
         "c3ZQ5trsJRKusgS4wDN5NHYNEaOxnPZaVDQ55nec", 
         ("glpi", "glpi"))
-pprint(x.get("listSearchOptions", "Computer"))
+data = {
+			"name": "UPDATE API TEST",
+			"content": "Testando UPDATE REST API",
+			"id": 18
+		}
+print(json.dumps(x.update('ticket', data),
+                    indent=4,
+                    separators=(',', ': '),
+                    sort_keys=True))
 x.kill()

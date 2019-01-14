@@ -81,6 +81,78 @@ The Item value must be valid, otherwise you will get the following error.
 ]
 ```
 
+### Profile information
+
+  ```python
+  print "Getting all the profiles associated to logged user: "
+  print json.dumps(glpi.get('getMyProfiles'),
+                    indent=4,
+                    separators=(',', ': '),
+                    sort_keys=True)
+  ```
+
+### Get active profile
+
+  ```python
+  print "Getting the current active profile: "
+  print json.dumps(glpi.get('getActiveProfile'),
+                    indent=4,
+                    separators=(',', ': '),
+                    sort_keys=True)
+  ```
+
+### Change active profile
+
+  ```python
+  print "Changing active profile to the profiles_id one: "
+  ```
+
+### Get my entities
+
+  ```python
+  print "Getting all the possible entities of the current logged user: "
+  print json.dumps(glpi.get('getMyEntities'),
+                    indent=4,
+                    separators=(',', ': '),
+                    sort_keys=True)
+  ```
+
+### Get active entities
+
+  ```python
+  print "Getting active entities of current logged user: "
+  print json.dumps(glpi.get('getActiveEntities'),
+                    indent=4,
+                    separators=(',', ': '),
+                    sort_keys=True)
+  ```
+
+### Change active profile
+
+  ```python
+  print "Changing active entity to the entities_id one: "
+  ```
+
+### Get full session
+
+  ```python
+  print "Getting the current php $_SESSION: "
+  print json.dumps(glpi.get('getFullSession'),
+                    indent=4,
+                    separators=(',', ': '),
+                    sort_keys=True)
+  ```
+
+### Get full session
+
+  ```python
+  print "Getting the current php $_SESSION: "
+  print json.dumps(glpi.get('getFullSession'),
+                    indent=4,
+                    separators=(',', ': '),
+                    sort_keys=True)
+  ```
+
 ### Get all Tickets
 
   ```python
@@ -89,6 +161,24 @@ The Item value must be valid, otherwise you will get the following error.
                     indent=4,
                     separators=(',', ': '),
                     sort_keys=True)
+  ```
+
+### Get sub items
+
+  ```python
+  print "Getting a collection of rows of the sub_itemtype for the identified item: "
+  ```
+
+### Get multiple items
+
+  ```python
+  print "Getting different itemtypes simultaneously: "
+  ```
+
+### List searchOptions
+
+  ```python
+  print "Getting a list of search options for the item type provided: "
   ```
 
 ### Create an Ticket
@@ -100,9 +190,44 @@ The Item value must be valid, otherwise you will get the following error.
     'content': '>>>> Content of ticket created by SDK API <<<'
   }
 
-  ticket_dict = glpi.create('ticket', ticket_payload)
+  ticket_dict = glpi.create(item_name='ticket', item_data=ticket_payload)
   if isinstance(ticket_dict, dict):
-    print "The ticket request was sent. See results: "
+    print "The create ticket request was sent. See results: "
+
+  print json.dumps(ticket_dict,
+                    indent=4,
+                    separators=(',', ': '),
+                    sort_keys=True)
+  ```
+
+### Update an Ticket
+
+  ```python
+
+  ticket_payload = {
+    'name': 'New name of ticket from SDK',
+    'content': '>>>> New content of ticket created by SDK API <<<'
+    'id': 1 #Id value generated in creation of ticket
+  }
+
+  ticket_dict = glpi.update(item_name='ticket', data=ticket_payload)
+  if isinstance(ticket_dict, dict):
+    print "The update ticket request was sent. See results: "
+
+  print json.dumps(ticket_dict,
+                    indent=4,
+                    separators=(',', ': '),
+                    sort_keys=True)
+  ```
+
+### Delete an Ticket
+
+  ```python
+
+  ticket_dict = glpi.delete(item_name='ticket', item_id=1, force_purge=true) 
+  #force_purge (default false): boolean, if the itemtype have a dustbin, you can force purge (delete finally)
+  if isinstance(ticket_dict, dict):
+    print "The delete ticket request was sent. See results: "
 
   print json.dumps(ticket_dict,
                     indent=4,
@@ -115,16 +240,6 @@ The Item value must be valid, otherwise you will get the following error.
   ```python
   print "Getting Ticket with ID 1: "
   print json.dumps(glpi.get('ticket', 1),
-                    indent=4,
-                    separators=(',', ': '),
-                    sort_keys=True)
-  ```
-
-### Profile information
-
-  ```python
-  print "Getting 'My' profile: "
-  print json.dumps(glpi.get('getMyProfiles'),
                     indent=4,
                     separators=(',', ': '),
                     sort_keys=True)
