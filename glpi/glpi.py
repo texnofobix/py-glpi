@@ -24,7 +24,8 @@ import json as json_import
 import logging
 import requests
 from requests.structures import CaseInsensitiveDict
-from .version import __version__
+#from .version import __version__
+from version import __version__
 
 if sys.version_info[0] > 2:
     from html.parser import HTMLParser
@@ -228,6 +229,38 @@ class GlpiService(object):
 
         return False
 
+    def finish_session_token(self):
+        """ Set up new session ID """
+
+        if self.session is not None:
+            # URL should be like: http://glpi.example.com/apirest.php
+            full_url = self.url + '/killSession'
+            auth = None
+
+            headers = {"App-Token": self.app_token,
+                    "Content-Type": "application/json",
+                    "Session-Token": self.session}
+
+            if self.token_auth is not None:
+                auth = self.token_auth
+            else:
+                auth = (self.username, self.password)
+
+            r = requests.request('GET', full_url,
+                                auth=auth, headers=headers)
+
+            try:
+                if r.status_code == 200:
+                    return True
+                else:
+                    err = _glpi_html_parser(r.content)
+                    raise GlpiException("Init session to GLPI server fails: %s" % err)
+            except Exception:
+                err = _glpi_html_parser(r.content)
+                raise GlpiException("ERROR when try to init session in GLPI server: %s" % err)
+
+        return False
+
     def get_session_token(self):
         """ Returns current session ID """
 
@@ -340,8 +373,8 @@ class GlpiService(object):
     def get(self, item_id):
         """ Return the JSON item with ID item_id. """
 
-        if isinstance(item_id, int):
-            uri = '%s/%d' % (self.uri, item_id)
+        if isinstance(item_id, (int, str)):
+            uri = '%s/%s' % (self.uri, str(item_id))
             response = self.request('GET', uri)
             return response.json()
         else:
@@ -431,6 +464,8 @@ class GLPI(object):
             "getActiveProfile": "getActiveProfile",
             "getMyProfiles": "getMyProfiles",
             "location": "location",
+            "getMyEntities": "getMyEntities",
+            "getActiveEntities": "getActiveEntities"
         }
         self.api_rest = None
         self.api_session = None
@@ -489,6 +524,15 @@ class GLPI(object):
             return {"session_token": self.api_session}
         else:
             return {"message_error": "Unable to InitSession in GLPI Server."}
+    
+    def kill(self):
+        try:
+            if self.api_has_session():
+                self.api_rest.finish_session_token()
+                self.api_rest = None
+                self.api_session = None
+        except GlpiException as e:
+            return {'{}'.format(e)}
 
     def api_has_session(self):
         """
@@ -712,3 +756,13 @@ class GLPI(object):
 
         except GlpiException as e:
             return {'{}'.format(e)}
+
+
+
+from pprint import pprint
+
+x = GLPI("https://glpidemo.cloud.trulymanager.com/apirest.php", 
+        "c3ZQ5trsJRKusgS4wDN5NHYNEaOxnPZaVDQ55nec", 
+        ("glpi", "glpi"))
+pprint(x.get("listSearchOptions", "Computer"))
+x.kill()

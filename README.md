@@ -67,6 +67,7 @@ Then import it in your script and create a `glpi` API connection:
   token = os.getenv("GLPI_APP_TOKEN") or None
 
   glpi = GLPI(url, token, (user, password))
+  glpi.kill() #Destroy a session identified by a session token
   ```
 
 To usage the SDK, you just set the DBTM item that you want and get information from GLPI.
