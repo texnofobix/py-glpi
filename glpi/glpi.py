@@ -230,7 +230,7 @@ class GlpiService(object):
         return False
 
     def finish_session_token(self):
-        """ Set up new session ID """
+        """ Destroy a session identified by a session token """
 
         if self.session is not None:
             # URL should be like: http://glpi.example.com/apirest.php
@@ -254,10 +254,10 @@ class GlpiService(object):
                     return True
                 else:
                     err = _glpi_html_parser(r.content)
-                    raise GlpiException("Init session to GLPI server fails: %s" % err)
+                    raise GlpiException("Finish session to GLPI server fails: %s" % err)
             except Exception:
                 err = _glpi_html_parser(r.content)
-                raise GlpiException("ERROR when try to init session in GLPI server: %s" % err)
+                raise GlpiException("ERROR when try to finish session in GLPI server: %s" % err)
 
         return False
 

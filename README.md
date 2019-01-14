@@ -175,12 +175,6 @@ The Item value must be valid, otherwise you will get the following error.
   print "Getting different itemtypes simultaneously: "
   ```
 
-### List searchOptions
-
-  ```python
-  print "Getting a list of search options for the item type provided: "
-  ```
-
 ### Create an Ticket
 
   ```python
@@ -255,6 +249,12 @@ The Item value must be valid, otherwise you will get the following error.
                     sort_keys=True)
   ```
 
+### List searchOptions
+
+  ```python
+  print "Getting a list of search options for the item type provided: "
+  ```
+  
 ### Search with GLPI search engine
 
 GLPI has a powerfull search engine builtin, which is exposed via the API.
