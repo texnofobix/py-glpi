@@ -24,8 +24,7 @@ import json as json_import
 import logging
 import requests
 from requests.structures import CaseInsensitiveDict
-#from .version import __version__
-from version import __version__
+from .version import __version__
 
 if sys.version_info[0] > 2:
     from html.parser import HTMLParser
@@ -792,25 +791,3 @@ class GLPI(object):
 
         except GlpiException as e:
             return {'{}'.format(e)}
-
-
-
-from pprint import pprint
-import json
-
-x = GLPI("https://glpidemo.cloud.trulymanager.com/apirest.php", 
-        "c3ZQ5trsJRKusgS4wDN5NHYNEaOxnPZaVDQ55nec", 
-        ("glpi", "glpi"))
-data = {
-			'name': 'New name',
-            'content': 'New content',
-            'id': 19
-		}
-
-#print(json.dumps(x.update(item_name='ticket', data=data), indent=4, separators=(',', ': '), sort_keys=True))
-#print(json.dumps(x.delete('ticket', 19, force_purge=True), indent=4, separators=(',', ': '), sort_keys=True))
-print(json.dumps(x.get('getActiveProfile'), indent=4, separators=(',', ': '), sort_keys=True))
-print(json.dumps(x.post('changeActiveProfile', 1), indent=4, separators=(',', ': '), sort_keys=True))
-print(json.dumps(x.get('getActiveProfile'), indent=4, separators=(',', ': '), sort_keys=True))
-
-x.kill()
