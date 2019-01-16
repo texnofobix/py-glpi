@@ -294,6 +294,7 @@ class GlpiService(object):
         """
 
         full_url = '%s/%s' % (self.url, url.strip('/'))
+        print(full_url)
         input_headers = _remove_null_values(headers) if headers else {}
 
         headers = CaseInsensitiveDict(
@@ -322,6 +323,7 @@ class GlpiService(object):
         files = _remove_null_values(files)
 
         try:
+            pprint(data)
             response = requests.request(method=method, url=full_url,
                                         headers=headers, params=params,
                                         data=data, **kwargs)
@@ -381,6 +383,7 @@ class GlpiService(object):
         else:
             return {'error_message': 'Unale to get %s ID [%s]' % (self.uri,
                                                                   item_id)}
+                                                        
 
     def get_path(self, path=''):
         """ Return the JSON from path """
@@ -409,11 +412,26 @@ class GlpiService(object):
 
         return response.json()
 
+    def post(self, item_id, is_recursive=False):
+        """ Change an object Item(Profile or entity) """
+
+        if not isinstance(item_id, int):
+            return {"message_error": "Please define item_id to be deleted."}
+
+        if is_recursive:
+            payload = '{ "entities_id": %d, "is_recursive": true}' % (item_id)
+        else:
+            payload = '{"entities_id": %d }' % (item_id)
+
+        response = self.request('POST', self.uri, data=payload)
+        return response.json()
+
     # [U]PDATE an Item
     def update(self, data):
         """ Update an object Item. """
 
         payload = '{"input": { %s }}' % (self.get_payload(data))
+        print(payload)
         new_url = "%s/%d" % (self.uri, data['id'])
 
         response = self.request('PUT', new_url, data=payload)
@@ -428,7 +446,7 @@ class GlpiService(object):
             return {"message_error": "Please define item_id to be deleted."}
 
         if force_purge:
-            payload = '{"input": { "id": %d } "force_purge": true}' % (item_id)
+            payload = '{"input": { "id": %d }, "force_purge": true}' % (item_id)
         else:
             payload = '{"input": { "id": %d }}' % (item_id)
 
@@ -466,7 +484,9 @@ class GLPI(object):
             "getMyProfiles": "getMyProfiles",
             "location": "location",
             "getMyEntities": "getMyEntities",
-            "getActiveEntities": "getActiveEntities"
+            "getActiveEntities": "getActiveEntities",
+            "changeActiveEntities": "changeActiveEntities",
+            "changeActiveProfile": "changeActiveProfile"
         }
         self.api_rest = None
         self.api_session = None
@@ -585,6 +605,18 @@ class GLPI(object):
                 return self.api_rest.get_path(item_name)
 
             return self.api_rest.get(item_id)
+
+        except GlpiException as e:
+            return {'{}'.format(e)}
+    
+    def post(self, item_name, item_id, is_recursive=False):
+        """ POST item_name (Profile or entity) """
+        try:
+            if not self.api_has_session():
+                self.init_api()
+
+            self.update_uri(item_name)
+            return self.api_rest.post(item_id, is_recursive=is_recursive)
 
         except GlpiException as e:
             return {'{}'.format(e)}
@@ -770,10 +802,16 @@ x = GLPI("https://glpidemo.cloud.trulymanager.com/apirest.php",
         "c3ZQ5trsJRKusgS4wDN5NHYNEaOxnPZaVDQ55nec", 
         ("glpi", "glpi"))
 data = {
-			"name": "UPDATE API TEST",
-			"content": "Testando UPDATE REST API",
-			"id": 18
+			'name': 'New name',
+            'content': 'New content',
+            'id': 19
 		}
-print(json.dumps(x.get('ticket', 1, "log"), indent=4, separators=(',', ': '), sort_keys=True))
+        
+#print(json.dumps(x.update(item_name='ticket', data=data), indent=4, separators=(',', ': '), sort_keys=True))
+#print(json.dumps(x.delete('ticket', 19, force_purge=True), indent=4, separators=(',', ': '), sort_keys=True))
+print(json.dumps(x.get('getActiveProfile'), indent=4, separators=(',', ': '), sort_keys=True))
+print(json.dumps(x.post('changeActiveProfile', 1), indent=4, separators=(',', ': '), sort_keys=True))
+print(json.dumps(x.get('getActiveProfile'), indent=4, separators=(',', ': '), sort_keys=True))
+
 x.kill()
 
