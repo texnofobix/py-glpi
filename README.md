@@ -105,6 +105,9 @@ The Item value must be valid, otherwise you will get the following error.
 
   ```python
   print "Changing active profile to the profiles_id one: "
+
+  ticket_dict = glpi.post(item_name='changeActiveProfile', item_id=1, is_recursive=True)
+  #is_recursive: (default false) Also display sub entities of the active entity
   ```
 
 ### Get my entities
@@ -131,6 +134,8 @@ The Item value must be valid, otherwise you will get the following error.
 
   ```python
   print "Changing active entity to the entities_id one: "
+
+  ticket_dict = glpi.post(item_name='changeActiveProfile', item_id=1)
   ```
 
 ### Get full session
@@ -181,12 +186,6 @@ The Item value must be valid, otherwise you will get the following error.
                     indent=4,
                     separators=(',', ': '),
                     sort_keys=True)
-  ```
-
-### Get multiple items
-
-  ```python
-  print "Getting different itemtypes simultaneously: "
   ```
 
 ### Location

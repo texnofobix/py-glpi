@@ -806,7 +806,7 @@ data = {
             'content': 'New content',
             'id': 19
 		}
-        
+
 #print(json.dumps(x.update(item_name='ticket', data=data), indent=4, separators=(',', ': '), sort_keys=True))
 #print(json.dumps(x.delete('ticket', 19, force_purge=True), indent=4, separators=(',', ': '), sort_keys=True))
 print(json.dumps(x.get('getActiveProfile'), indent=4, separators=(',', ': '), sort_keys=True))
@@ -814,4 +814,3 @@ print(json.dumps(x.post('changeActiveProfile', 1), indent=4, separators=(',', ':
 print(json.dumps(x.get('getActiveProfile'), indent=4, separators=(',', ': '), sort_keys=True))
 
 x.kill()
-
