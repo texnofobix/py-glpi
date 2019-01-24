@@ -293,7 +293,6 @@ class GlpiService(object):
         """
 
         full_url = '%s/%s' % (self.url, url.strip('/'))
-        print(full_url)
         input_headers = _remove_null_values(headers) if headers else {}
 
         headers = CaseInsensitiveDict(
@@ -322,7 +321,6 @@ class GlpiService(object):
         files = _remove_null_values(files)
 
         try:
-            pprint(data)
             response = requests.request(method=method, url=full_url,
                                         headers=headers, params=params,
                                         data=data, **kwargs)
@@ -376,7 +374,6 @@ class GlpiService(object):
 
         if isinstance(item_id, (int, str)):
             uri = '%s/%s' % (self.uri, str(item_id))
-            print(uri)
             response = self.request('GET', uri)
             return response.json()
         else:
@@ -430,7 +427,6 @@ class GlpiService(object):
         """ Update an object Item. """
 
         payload = '{"input": { %s }}' % (self.get_payload(data))
-        print(payload)
         new_url = "%s/%d" % (self.uri, data['id'])
 
         response = self.request('PUT', new_url, data=payload)
