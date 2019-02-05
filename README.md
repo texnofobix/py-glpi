@@ -130,12 +130,12 @@ The Item value must be valid, otherwise you will get the following error.
                     sort_keys=True)
   ```
 
-### Change active profile
+### Change active entities
 
   ```python
   print "Changing active entity to the entities_id one: "
 
-  ticket_dict = glpi.post(item_name='changeActiveProfile', item_id=1)
+  ticket_dict = glpi.post(item_name='changeActiveEntities', item_id=1)
   ```
 
 ### Get full session
@@ -147,16 +147,7 @@ The Item value must be valid, otherwise you will get the following error.
                     separators=(',', ': '),
                     sort_keys=True)
   ```
-
-### Get full session
-
-  ```python
-  print "Getting the current php $_SESSION: "
-  print json.dumps(glpi.get('getFullSession'),
-                    indent=4,
-                    separators=(',', ': '),
-                    sort_keys=True)
-  ```
+  
 
 ### Get all Tickets
 

@@ -408,18 +408,24 @@ class GlpiService(object):
 
         return response.json()
 
-    def post(self, item_id, is_recursive=False):
+    def post(self, item_id, is_recursive=False, change=None):
         """ Change an object Item(Profile or entity) """
 
         if not isinstance(item_id, int):
             return {"message_error": "Please define item_id to be deleted."}
 
-        if is_recursive:
-            payload = '{ "entities_id": %d, "is_recursive": true}' % (item_id)
-        else:
-            payload = '{"entities_id": %d }' % (item_id)
+        if change == "changeActiveEntities":
+            if is_recursive:
+                payload = '{ "entities_id": %d, "is_recursive": true}' % (item_id)
+            else:
+                payload = '{"entities_id": %d }' % (item_id)
+        
+        if change == "changeActiveProfile":
+            payload = '{ "profiles_id": %d}' % (item_id)
 
         response = self.request('POST', self.uri, data=payload)
+        if response.text == "":
+            return {"status": True}
         return response.json()
 
     # [U]PDATE an Item
@@ -611,7 +617,7 @@ class GLPI(object):
                 self.init_api()
 
             self.update_uri(item_name)
-            return self.api_rest.post(item_id, is_recursive=is_recursive)
+            return self.api_rest.post(item_id, is_recursive=is_recursive, change=item_name)
 
         except GlpiException as e:
             return {'{}'.format(e)}
