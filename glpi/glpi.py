@@ -228,6 +228,38 @@ class GlpiService(object):
 
         return False
 
+    def finish_session_token(self):
+        """ Destroy a session identified by a session token """
+
+        if self.session is not None:
+            # URL should be like: http://glpi.example.com/apirest.php
+            full_url = self.url + '/killSession'
+            auth = None
+
+            headers = {"App-Token": self.app_token,
+                    "Content-Type": "application/json",
+                    "Session-Token": self.session}
+
+            if self.token_auth is not None:
+                auth = self.token_auth
+            else:
+                auth = (self.username, self.password)
+
+            r = requests.request('GET', full_url,
+                                auth=auth, headers=headers)
+
+            try:
+                if r.status_code == 200:
+                    return True
+                else:
+                    err = _glpi_html_parser(r.content)
+                    raise GlpiException("Finish session to GLPI server fails: %s" % err)
+            except Exception:
+                err = _glpi_html_parser(r.content)
+                raise GlpiException("ERROR when try to finish session in GLPI server: %s" % err)
+
+        return False
+
     def get_session_token(self):
         """ Returns current session ID """
 
@@ -340,13 +372,14 @@ class GlpiService(object):
     def get(self, item_id):
         """ Return the JSON item with ID item_id. """
 
-        if isinstance(item_id, int):
-            uri = '%s/%d' % (self.uri, item_id)
+        if isinstance(item_id, (int, str)):
+            uri = '%s/%s' % (self.uri, str(item_id))
             response = self.request('GET', uri)
             return response.json()
         else:
             return {'error_message': 'Unale to get %s ID [%s]' % (self.uri,
                                                                   item_id)}
+                                                        
 
     def get_path(self, path=''):
         """ Return the JSON from path """
@@ -375,6 +408,26 @@ class GlpiService(object):
 
         return response.json()
 
+    def post(self, item_id, is_recursive=False, change=None):
+        """ Change an object Item(Profile or entity) """
+
+        if not isinstance(item_id, int):
+            return {"message_error": "Please define item_id to be deleted."}
+
+        if change == "changeActiveEntities":
+            if is_recursive:
+                payload = '{ "entities_id": %d, "is_recursive": true}' % (item_id)
+            else:
+                payload = '{"entities_id": %d }' % (item_id)
+        
+        if change == "changeActiveProfile":
+            payload = '{ "profiles_id": %d}' % (item_id)
+
+        response = self.request('POST', self.uri, data=payload)
+        if response.text == "":
+            return {"status": True}
+        return response.json()
+
     # [U]PDATE an Item
     def update(self, data):
         """ Update an object Item. """
@@ -394,7 +447,7 @@ class GlpiService(object):
             return {"message_error": "Please define item_id to be deleted."}
 
         if force_purge:
-            payload = '{"input": { "id": %d } "force_purge": true}' % (item_id)
+            payload = '{"input": { "id": %d }, "force_purge": true}' % (item_id)
         else:
             payload = '{"input": { "id": %d }}' % (item_id)
 
@@ -431,6 +484,10 @@ class GLPI(object):
             "getActiveProfile": "getActiveProfile",
             "getMyProfiles": "getMyProfiles",
             "location": "location",
+            "getMyEntities": "getMyEntities",
+            "getActiveEntities": "getActiveEntities",
+            "changeActiveEntities": "changeActiveEntities",
+            "changeActiveProfile": "changeActiveProfile"
         }
         self.api_rest = None
         self.api_session = None
@@ -489,6 +546,15 @@ class GLPI(object):
             return {"session_token": self.api_session}
         else:
             return {"message_error": "Unable to InitSession in GLPI Server."}
+    
+    def kill(self):
+        try:
+            if self.api_has_session():
+                self.api_rest.finish_session_token()
+                self.api_rest = None
+                self.api_session = None
+        except GlpiException as e:
+            return {'{}'.format(e)}
 
     def api_has_session(self):
         """
@@ -525,7 +591,7 @@ class GLPI(object):
         except GlpiException as e:
             return {'{}'.format(e)}
 
-    def get(self, item_name, item_id=None):
+    def get(self, item_name, item_id=None, sub_item=None):
         """ Get item_name and/with resource by ID """
         try:
             if not self.api_has_session():
@@ -533,10 +599,25 @@ class GLPI(object):
 
             self.update_uri(item_name)
 
+            if sub_item is not None and item_id is not None:
+                return self.api_rest.get("%d/%s" % (item_id, sub_item))
+
             if item_id is None:
                 return self.api_rest.get_path(item_name)
 
             return self.api_rest.get(item_id)
+
+        except GlpiException as e:
+            return {'{}'.format(e)}
+    
+    def post(self, item_name, item_id, is_recursive=False):
+        """ POST item_name (Profile or entity) """
+        try:
+            if not self.api_has_session():
+                self.init_api()
+
+            self.update_uri(item_name)
+            return self.api_rest.post(item_id, is_recursive=is_recursive, change=item_name)
 
         except GlpiException as e:
             return {'{}'.format(e)}

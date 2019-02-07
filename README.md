@@ -67,6 +67,7 @@ Then import it in your script and create a `glpi` API connection:
   token = os.getenv("GLPI_APP_TOKEN") or None
 
   glpi = GLPI(url, token, (user, password))
+  glpi.kill() #Destroy a session identified by a session token
   ```
 
 To usage the SDK, you just set the DBTM item that you want and get information from GLPI.
@@ -80,30 +81,79 @@ The Item value must be valid, otherwise you will get the following error.
 ]
 ```
 
-### Get all Tickets
+### Profile information
 
   ```python
-  print "Getting all Tickets: "
-  print json.dumps(glpi.get_all('ticket'),
+  print "Getting all the profiles associated to logged user: "
+  print json.dumps(glpi.get('getMyProfiles'),
                     indent=4,
                     separators=(',', ': '),
                     sort_keys=True)
   ```
 
-### Create an Ticket
+### Get active profile
 
   ```python
+  print "Getting the current active profile: "
+  print json.dumps(glpi.get('getActiveProfile'),
+                    indent=4,
+                    separators=(',', ': '),
+                    sort_keys=True)
+  ```
 
-  ticket_payload = {
-    'name': 'New ticket from SDK',
-    'content': '>>>> Content of ticket created by SDK API <<<'
-  }
+### Change active profile
 
-  ticket_dict = glpi.create('ticket', ticket_payload)
-  if isinstance(ticket_dict, dict):
-    print "The ticket request was sent. See results: "
+  ```python
+  print "Changing active profile to the profiles_id one: "
 
-  print json.dumps(ticket_dict,
+  ticket_dict = glpi.post(item_name='changeActiveProfile', item_id=1, is_recursive=True)
+  #is_recursive: (default false) Also display sub entities of the active entity
+  ```
+
+### Get my entities
+
+  ```python
+  print "Getting all the possible entities of the current logged user: "
+  print json.dumps(glpi.get('getMyEntities'),
+                    indent=4,
+                    separators=(',', ': '),
+                    sort_keys=True)
+  ```
+
+### Get active entities
+
+  ```python
+  print "Getting active entities of current logged user: "
+  print json.dumps(glpi.get('getActiveEntities'),
+                    indent=4,
+                    separators=(',', ': '),
+                    sort_keys=True)
+  ```
+
+### Change active entities
+
+  ```python
+  print "Changing active entity to the entities_id one: "
+
+  ticket_dict = glpi.post(item_name='changeActiveEntities', item_id=1)
+  ```
+
+### Get full session
+
+  ```python
+  print "Getting the current php $_SESSION: "
+  print json.dumps(glpi.get('getFullSession'),
+                    indent=4,
+                    separators=(',', ': '),
+                    sort_keys=True)
+  ```
+  
+
+### Get all Tickets
+
+  ```python
+  print "Getting all Tickets: "
+  print json.dumps(glpi.get_all('ticket'),
                     indent=4,
                     separators=(',', ': '),
                     sort_keys=True)
@@ -119,11 +169,11 @@ The Item value must be valid, otherwise you will get the following error.
                     sort_keys=True)
   ```
 
-### Profile information
+### Get sub items
 
   ```python
-  print "Getting 'My' profile: "
-  print json.dumps(glpi.get('getMyProfiles'),
+  print "Getting a collection of rows of the sub_itemtype for the identified item: "
+  print json.dumps(glpi.get('ticket', 1, 'log'),
                     indent=4,
                     separators=(',', ': '),
                     sort_keys=True)
@@ -134,6 +184,71 @@ The Item value must be valid, otherwise you will get the following error.
   ```python
   print "Getting 'Locations': "
   print json.dumps(glpi.get('location'),
+                    indent=4,
+                    separators=(',', ': '),
+                    sort_keys=True)
+  ```
+
+
+### Create an Ticket
+
+  ```python
+
+  ticket_payload = {
+    'name': 'New ticket from SDK',
+    'content': '>>>> Content of ticket created by SDK API <<<'
+  }
+
+  ticket_dict = glpi.create(item_name='ticket', item_data=ticket_payload)
+  if isinstance(ticket_dict, dict):
+    print "The create ticket request was sent. See results: "
+
+  print json.dumps(ticket_dict,
+                    indent=4,
+                    separators=(',', ': '),
+                    sort_keys=True)
+  ```
+
+### Update an Ticket
+
+  ```python
+
+  ticket_payload = {
+    'name': 'New name of ticket from SDK',
+    'content': '>>>> New content of ticket created by SDK API <<<'
+    'id': 1 #Id value generated in creation of ticket
+  }
+
+  ticket_dict = glpi.update(item_name='ticket', data=ticket_payload)
+  if isinstance(ticket_dict, dict):
+    print "The update ticket request was sent. See results: "
+
+  print json.dumps(ticket_dict,
+                    indent=4,
+                    separators=(',', ': '),
+                    sort_keys=True)
+  ```
+
+### Delete an Ticket
+
+  ```python
+
+  ticket_dict = glpi.delete(item_name='ticket', item_id=1, force_purge=true) 
+  #force_purge (default false): boolean, if the itemtype have a dustbin, you can force purge (delete finally)
+  if isinstance(ticket_dict, dict):
+    print "The delete ticket request was sent. See results: "
+
+  print json.dumps(ticket_dict,
+                    indent=4,
+                    separators=(',', ': '),
+                    sort_keys=True)
+  ```
+
+### List searchOptions
+
+  ```python
+  print "Getting a list of search options for the item type provided: "
+  print json.dumps(glpi.search_options('ticket'),
                     indent=4,
                     separators=(',', ': '),
                     sort_keys=True)
