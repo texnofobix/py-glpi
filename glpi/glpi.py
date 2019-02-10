@@ -337,7 +337,7 @@ class GlpiService(object):
         data_str = ""
         null_str = "<DEFAULT_NULL>"
         for k in data_json:
-            if data_str is not "":
+            if data_str != "":
                 data_str = "%s," % data_str
 
             if data_json[k] == null_str:
@@ -504,8 +504,10 @@ class GLPI(object):
         """ Define an item to object """
         try:
             self.item_uri = self.item_map[item_name]
+        except KeyError as e:
+            raise Exception('Key [{}] not found. {}'.format(item_name, e))
         except Exception as e:
-            raise Exception('Key [{}] not found in Item MAP'.format(item_name))
+            raise e
 
     def set_item_map(self, item_map={}):
         """ Set an custom item_map. """

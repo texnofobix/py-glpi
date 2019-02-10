@@ -1,3 +1,4 @@
 pycodestyle
 codecov
 python-dotenv
+tox
