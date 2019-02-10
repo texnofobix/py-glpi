@@ -221,10 +221,10 @@ class GlpiService(object):
                 return True
             else:
                 err = _glpi_html_parser(r.content)
-                raise GlpiException("Init session to GLPI server fails: %s" % err)
+                raise GlpiException("Failed to init session: %s" % err)
         except Exception:
             err = _glpi_html_parser(r.content)
-            raise GlpiException("ERROR when try to init session in GLPI server: %s" % err)
+            raise GlpiException("ERROR init session: %s" % err)
 
         return False
 
@@ -236,27 +236,28 @@ class GlpiService(object):
             full_url = self.url + '/killSession'
             auth = None
 
-            headers = {"App-Token": self.app_token,
+            headers = {
+                    "App-Token": self.app_token,
                     "Content-Type": "application/json",
-                    "Session-Token": self.session}
+                    "Session-Token": self.session
+                }
 
             if self.token_auth is not None:
                 auth = self.token_auth
             else:
                 auth = (self.username, self.password)
 
-            r = requests.request('GET', full_url,
-                                auth=auth, headers=headers)
+            r = requests.request('GET', full_url, auth=auth, headers=headers)
 
             try:
                 if r.status_code == 200:
                     return True
                 else:
                     err = _glpi_html_parser(r.content)
-                    raise GlpiException("Finish session to GLPI server fails: %s" % err)
+                    raise GlpiException("Failed to finish session: %s" % err)
             except Exception:
                 err = _glpi_html_parser(r.content)
-                raise GlpiException("ERROR when try to finish session in GLPI server: %s" % err)
+                raise GlpiException("Eroor to finish session: %s" % err)
 
         return False
 
@@ -306,7 +307,7 @@ class GlpiService(object):
                 self.set_session_token()
             headers.update({'Session-Token': self.session})
         except GlpiException as e:
-            raise GlpiException("Unable to get Session token. ERROR: {}".format(e))
+            raise GlpiException("Unable to get Session token: {}".format(e))
 
         if self.app_token is not None:
             headers.update({'App-Token': self.app_token})
@@ -358,7 +359,8 @@ class GlpiService(object):
 
         payload = '{"input": { %s }}' % (self.get_payload(data_json))
 
-        response = self.request('POST', self.uri, data=payload, accept_json=True)
+        response = self.request('POST', self.uri,
+                                data=payload, accept_json=True)
 
         return response.json()
 
@@ -379,7 +381,6 @@ class GlpiService(object):
         else:
             return {'error_message': 'Unale to get %s ID [%s]' % (self.uri,
                                                                   item_id)}
-                                                        
 
     def get_path(self, path=''):
         """ Return the JSON from path """
@@ -416,12 +417,12 @@ class GlpiService(object):
 
         if change == "changeActiveEntities":
             if is_recursive:
-                payload = '{ "entities_id": %d, "is_recursive": true}' % (item_id)
+                payload = '{"entities_id": %d,"is_recursive":true}' % (item_id)
             else:
                 payload = '{"entities_id": %d }' % (item_id)
-        
+
         if change == "changeActiveProfile":
-            payload = '{ "profiles_id": %d}' % (item_id)
+            payload = '{"profiles_id": %d}' % (item_id)
 
         response = self.request('POST', self.uri, data=payload)
         if response.text == "":
@@ -447,9 +448,9 @@ class GlpiService(object):
             return {"message_error": "Please define item_id to be deleted."}
 
         if force_purge:
-            payload = '{"input": { "id": %d }, "force_purge": true}' % (item_id)
+            payload = '{"input":{ "id": %d },"force_purge": true}' % (item_id)
         else:
-            payload = '{"input": { "id": %d }}' % (item_id)
+            payload = '{"input":{ "id": %d}}' % (item_id)
 
         response = self.request('DELETE', self.uri, data=payload)
         return response.json()
@@ -503,7 +504,7 @@ class GLPI(object):
         """ Define an item to object """
         try:
             self.item_uri = self.item_map[item_name]
-        except:
+        except Exception as e:
             raise Exception('Key [{}] not found in Item MAP'.format(item_name))
 
     def set_item_map(self, item_map={}):
@@ -546,7 +547,7 @@ class GLPI(object):
             return {"session_token": self.api_session}
         else:
             return {"message_error": "Unable to InitSession in GLPI Server."}
-    
+
     def kill(self):
         try:
             if self.api_has_session():
@@ -609,7 +610,7 @@ class GLPI(object):
 
         except GlpiException as e:
             return {'{}'.format(e)}
-    
+
     def post(self, item_name, item_id, is_recursive=False):
         """ POST item_name (Profile or entity) """
         try:
@@ -617,7 +618,8 @@ class GLPI(object):
                 self.init_api()
 
             self.update_uri(item_name)
-            return self.api_rest.post(item_id, is_recursive=is_recursive, change=item_name)
+            return self.api_rest.post(item_id, is_recursive=is_recursive,
+                                      change=item_name)
 
         except GlpiException as e:
             return {'{}'.format(e)}
@@ -669,17 +671,8 @@ class GLPI(object):
             return {"message_error": "Unable to find a valid criteria."}
 
     def search_engine(self, item_name, criteria):
-        """ Call GLPI's search engine syntax.
-        Ex. cURL - usage to query in 'name' and return ID:
-        $ curl -X GET  ... 'http://path/to/apirest.php/search/Knowbaseitem?\
-            criteria\[0\]\[field\]\=6\
-            &criteria\[0\]\[searchtype\]=contains\
-            &criteria\[0\]\[value\]=sites-multimidia\
-            &criteria\[0\]\[link\]\=AND\
-            &criteria\[1\]\[field\]\=2\
-            &criteria\[1\]\[searchtype\]\=contains\
-            &criteria\[1\]\[value\]\=\
-            &criteria\[1\]\[link\]\=AND' |jq .
+        """
+        Call GLPI's search engine syntax.
 
         INPUT query in JSON format (/apirest.php#search-items):
         metacriteria: [
@@ -692,7 +685,7 @@ class GLPI(object):
         ]
 
         RETURNS:
-        GLPIs APIREST JSON formated with result of search in key 'data'.
+            GLPIs APIRest JSON formated with result of search in key 'data'.
         """
 
         # Receive the possible field ids for type item_name
@@ -725,13 +718,13 @@ class GLPI(object):
                     field_name = field_map[c['field']]
                 else:
                     raise GlpiInvalidArgument(
-                        'Cannot map field name "'+c['field']+'" to a field id '+
-                        'for '+str(idx+1)+'. criterion '+str(c))
+                        'Cannot map field name "' + c['field'] + '" to ' +
+                        'a field id for '+str(idx+1)+'. criterion '+str(c))
                 uri = uri + "criteria[%d][field]=%d" % (idx, field_name)
             else:
                 raise GlpiInvalidArgument(
-                    'Missing "field" parameter for '+str(idx+1)+'. criterion '+
-                    str(c))
+                    'Missing "field" parameter for ' + str(idx+1) +
+                    'the criteria: ' + str(c))
 
             # build value argument
             if 'value' not in c or c['value'] is None:
@@ -742,7 +735,8 @@ class GLPI(object):
             # build searchtype argument
             # -> optional! defaults to "contains" on the server if empty
             if 'searchtype' in c and c['searchtype'] is not None:
-                uri = uri + "&criteria[%d][searchtype]=%s" % (idx, c['searchtype'])
+                uri = (uri + "&criteria[%d][searchtype]=%s".format(idx,
+                       c['searchtype']))
             else:
                 uri = uri + "&criteria[%d][searchtype]=" % (idx)
 

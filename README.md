@@ -259,8 +259,25 @@ The Item value must be valid, otherwise you will get the following error.
 GLPI has a powerfull search engine builtin, which is exposed via the API.
 See the documentation at your GLPI instance via `apirest.php#search-items`.
 
+The usage sample using `curl` is:
+
+> query 'name' and return the ID
+
+```bash
+curl -X GET 'http://path/to/apirest.php/search/Knowbaseitem?
+    criteria\[0\]\[field\]\=6
+    &criteria\[0\]\[searchtype\]=contains
+    &criteria\[0\]\[value\]=sites-multimidia
+    &criteria\[0\]\[link\]\=AND
+    &criteria\[1\]\[field\]\=2
+    &criteria\[1\]\[searchtype\]\=contains
+    &criteria\[1\]\[value\]\=
+    &criteria\[1\]\[link\]\=AND'
+```
+
 You can use it as follows:
-  ```python
+
+```python
   print "Search 'Computers': "
   criteria = { "criteria": [
                 {
@@ -283,6 +300,7 @@ You can use it as follows:
   ```
 
 **Usage:**
+
 * `field` parameter:
   * You can use field names instead of their integer IDs (see output from
     `/listSearchOptions`)
@@ -299,6 +317,7 @@ You can use it as follows:
 * `value` is entirely optional like `searchtype`.
 
 **Limitations:**
+
 * You cannot use other search parameters other than `criteria` right now.
 * You cannot use the `metacriteria` parameter, which makes linked searches
   unavailable.
@@ -306,7 +325,6 @@ You can use it as follows:
 ### Full example
 
 > TODO: create an full example with various Items available in GLPI Rest API.
-
 
 ## CONTRIBUTING
 
