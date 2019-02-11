@@ -208,7 +208,7 @@ class GlpiService(object):
                    "Content-Type": "application/json"}
 
         if self.token_auth is not None:
-            auth = self.token_auth
+            headers["Authorization"] = "user_token "+self.token_auth
         else:
             auth = (self.username, self.password)
 
