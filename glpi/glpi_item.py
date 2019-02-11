@@ -57,7 +57,7 @@ class GlpiItem(object):
         """ Get stream of data with format acceptable in GLPI API.  """
         input_data = ""
         for k in self.data:
-            if input_data is not "":
+            if input_data != "":
                 input_data = "%s," % input_data
 
             if self.data[k] == self.null_str:
