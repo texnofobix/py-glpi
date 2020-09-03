@@ -20,3 +20,5 @@ from .item_knowbase import GlpiKnowBase  # noqa
 from .item_knowbase import KnowBase  # noqa
 from .item_ticket import GlpiTicket  # noqa
 from .item_ticket import Ticket  # noqa
+from .item_problem import GlpiProblem  # noqa
+from .item_problem import Problem  # noqa
