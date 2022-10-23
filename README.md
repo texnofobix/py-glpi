@@ -33,7 +33,7 @@ Just install from:
 * repository (development):
 
   ```bash
-  pip install -e git+https://github.com/truly-systems/glpi-sdk-python.git@master#egg=glpi
+  pip install -e git+https://github.com/texnofobix/py-glpi.git@master#egg=glpi
   ```
 
 * requirements.txt (development)
@@ -46,27 +46,17 @@ Just install from:
 
 You should enable the GLPI API and generate an App Token.
 
-Please, export these environments variables with yours config:
-
-  ```bash
-  export username = "GLPI_USER"
-  export password = "GLPI_USER"
-  export url = 'http://glpi.example.com/apirest.php'
-  export glpi_app_token = "GLPI_API_TOKEN"
-  ```
-
 Then import it in your script and create a `glpi` API connection:
 
   ```python
-  import os
   from glpi import GLPI
 
-  url = os.getenv("GLPI_API_URL") or None
-  user = os.getenv("GLPI_USERNAME") or None
-  password = os.getenv("GLPI_PASSWORD") or None
-  token = os.getenv("GLPI_APP_TOKEN") or None
+  url = "GLPI_API_URL"
+  user = "GLPI_USERNAME"
+  password = "GLPI_PASSWORD"
+  app_token = "GLPI_APP_TOKEN"
 
-  glpi = GLPI(url, token, (user, password))
+  glpi = GLPI(url, app_token, (user, password))
   glpi.kill() #Destroy a session identified by a session token
   ```
 
@@ -84,27 +74,27 @@ The Item value must be valid, otherwise you will get the following error.
 ### Profile information
 
   ```python
-  print "Getting all the profiles associated to logged user: "
-  print json.dumps(glpi.get('getMyProfiles'),
+  print("Getting all the profiles associated to logged user: ")
+  print(json.dumps(glpi.get('getMyProfiles'),
                     indent=4,
                     separators=(',', ': '),
-                    sort_keys=True)
+                    sort_keys=True))
   ```
 
 ### Get active profile
 
   ```python
-  print "Getting the current active profile: "
-  print json.dumps(glpi.get('getActiveProfile'),
+  print("Getting the current active profile: ")
+  print(json.dumps(glpi.get('getActiveProfile'),
                     indent=4,
                     separators=(',', ': '),
-                    sort_keys=True)
+                    sort_keys=True))
   ```
 
 ### Change active profile
 
   ```python
-  print "Changing active profile to the profiles_id one: "
+  print("Changing active profile to the profiles_id one: ")
 
   ticket_dict = glpi.post(item_name='changeActiveProfile', item_id=1, is_recursive=True)
   #is_recursive: (default false) Also display sub entities of the active entity
@@ -113,27 +103,27 @@ The Item value must be valid, otherwise you will get the following error.
 ### Get my entities
 
   ```python
-  print "Getting all the possible entities of the current logged user: "
-  print json.dumps(glpi.get('getMyEntities'),
+  print("Getting all the possible entities of the current logged user: ")
+  print(json.dumps(glpi.get('getMyEntities'),
                     indent=4,
                     separators=(',', ': '),
-                    sort_keys=True)
+                    sort_keys=True))
   ```
 
 ### Get active entities
 
   ```python
-  print "Getting active entities of current logged user: "
-  print json.dumps(glpi.get('getActiveEntities'),
+  print("Getting active entities of current logged user: ")
+  print(json.dumps(glpi.get('getActiveEntities'),
                     indent=4,
                     separators=(',', ': '),
-                    sort_keys=True)
+                    sort_keys=True))
   ```
 
 ### Change active entities
 
   ```python
-  print "Changing active entity to the entities_id one: "
+  print("Changing active entity to the entities_id one: ")
 
   ticket_dict = glpi.post(item_name='changeActiveEntities', item_id=1)
   ```
@@ -141,52 +131,52 @@ The Item value must be valid, otherwise you will get the following error.
 ### Get full session
 
   ```python
-  print "Getting the current php $_SESSION: "
-  print json.dumps(glpi.get('getFullSession'),
+  print("Getting the current php $_SESSION: ")
+  print(json.dumps(glpi.get('getFullSession'),
                     indent=4,
                     separators=(',', ': '),
-                    sort_keys=True)
+                    sort_keys=True))
   ```
   
 
 ### Get all Tickets
 
   ```python
-  print "Getting all Tickets: "
-  print json.dumps(glpi.get_all('ticket'),
+  print("Getting all Tickets: ")
+  print(json.dumps(glpi.get_all('ticket'),
                     indent=4,
                     separators=(',', ': '),
-                    sort_keys=True)
+                    sort_keys=True))
   ```
 
 ### Get ticket by ID
 
   ```python
-  print "Getting Ticket with ID 1: "
-  print json.dumps(glpi.get('ticket', 1),
+  print("Getting Ticket with ID 1: ")
+  print(json.dumps(glpi.get('ticket', 1),
                     indent=4,
                     separators=(',', ': '),
-                    sort_keys=True)
+                    sort_keys=True))
   ```
 
 ### Get sub items
 
   ```python
-  print "Getting a collection of rows of the sub_itemtype for the identified item: "
-  print json.dumps(glpi.get('ticket', 1, 'log'),
+  print("Getting a collection of rows of the sub_itemtype for the identified item: ")
+  print(json.dumps(glpi.get('ticket', 1, 'log'),
                     indent=4,
                     separators=(',', ': '),
-                    sort_keys=True)
+                    sort_keys=True))
   ```
 
 ### Location
 
   ```python
-  print "Getting 'Locations': "
-  print json.dumps(glpi.get('location'),
+  print("Getting 'Locations': ")
+  print(json.dumps(glpi.get('location'),
                     indent=4,
                     separators=(',', ': '),
-                    sort_keys=True)
+                    sort_keys=True))
   ```
 
 
@@ -201,12 +191,12 @@ The Item value must be valid, otherwise you will get the following error.
 
   ticket_dict = glpi.create(item_name='ticket', item_data=ticket_payload)
   if isinstance(ticket_dict, dict):
-    print "The create ticket request was sent. See results: "
+    print("The create ticket request was sent. See results: ")
 
-  print json.dumps(ticket_dict,
+  print(json.dumps(ticket_dict,
                     indent=4,
                     separators=(',', ': '),
-                    sort_keys=True)
+                    sort_keys=True))
   ```
 
 ### Update an Ticket
@@ -221,12 +211,12 @@ The Item value must be valid, otherwise you will get the following error.
 
   ticket_dict = glpi.update(item_name='ticket', data=ticket_payload)
   if isinstance(ticket_dict, dict):
-    print "The update ticket request was sent. See results: "
+    print("The update ticket request was sent. See results: ")
 
-  print json.dumps(ticket_dict,
+  print(json.dumps(ticket_dict,
                     indent=4,
                     separators=(',', ': '),
-                    sort_keys=True)
+                    sort_keys=True))
   ```
 
 ### Delete an Ticket
@@ -236,22 +226,22 @@ The Item value must be valid, otherwise you will get the following error.
   ticket_dict = glpi.delete(item_name='ticket', item_id=1, force_purge=true) 
   #force_purge (default false): boolean, if the itemtype have a dustbin, you can force purge (delete finally)
   if isinstance(ticket_dict, dict):
-    print "The delete ticket request was sent. See results: "
+    print("The delete ticket request was sent. See results: ")
 
-  print json.dumps(ticket_dict,
+  print(json.dumps(ticket_dict,
                     indent=4,
                     separators=(',', ': '),
-                    sort_keys=True)
+                    sort_keys=True))
   ```
 
 ### List searchOptions
 
   ```python
-  print "Getting a list of search options for the item type provided: "
-  print json.dumps(glpi.search_options('ticket'),
+  print("Getting a list of search options for the item type provided: ")
+  print(json.dumps(glpi.search_options('ticket'),
                     indent=4,
                     separators=(',', ': '),
-                    sort_keys=True)
+                    sort_keys=True))
   ```
 
 ### Search with GLPI search engine
@@ -278,7 +268,7 @@ curl -X GET 'http://path/to/apirest.php/search/Knowbaseitem?
 You can use it as follows:
 
 ```python
-  print "Search 'Computers': "
+  print("Search 'Computers': ")
   criteria = { "criteria": [
                 {
                   # "link": "AND", # this is optional for the first criterion
@@ -293,10 +283,10 @@ You can use it as follows:
                   "value": "xxx"
                 }
              ]}
-  print json.dumps(glpi.search_engine('computer', criteria),
+  print(json.dumps(glpi.search_engine('computer', criteria),
                     indent=4,
                     separators=(',', ': '),
-                    sort_keys=True)
+                    sort_keys=True))
   ```
 
 **Usage:**

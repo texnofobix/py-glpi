@@ -207,13 +207,10 @@ class GlpiService(object):
         headers = {"App-Token": self.app_token,
                    "Content-Type": "application/json"}
 
-        if self.token_auth is not None:
+        if type(self.token_auth) is not tuple: # self.token_auth is not None:
             headers["Authorization"] = "user_token "+self.token_auth
         else:
-            auth = (self.username, self.password)
-
-        r = requests.request('GET', full_url,
-                             auth=auth, headers=headers)
+            auth = self.token_auth
 
         try:
             if r.status_code == 200:
